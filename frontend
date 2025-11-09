@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Itinerary Website</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e3d071;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #b74e8e;
+            color: white;
+            padding: 25px;
+            text-align: center;
+            font-size: 2em;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+            background-color: #333;
+        }
+        nav ul li {
+            margin: 0;
+        }
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            padding: 15px 25px;
+            display: block;
+            transition: 0.3s;
+        }
+        nav ul li a:hover {
+            background-color: #200689;
+        }
+        section {
+            padding: 30px 20px;
+            max-width: 900px;
+            margin: auto;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        form label {
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        form input, form button {
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 1em;
+        }
+        form button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        form button:hover {
+            background-color: #45a049;
+        }
+        .itinerary-card {
+            background-color: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+        .itinerary-card:hover {
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        My Travel Planner
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#plan">Plan Trip</a></li>
+            <li><a href="#about">About</a></li>
+        </ul>
+    </nav>
+
+    <section id="home">
+        <h2>Welcome!</h2>
+        <p>Plan your perfect trip with our easy itinerary generator. Enter your destination and number of days to get started.</p>
+    </section>
+
+    <section id="plan">
+        <h2>Plan Your Trip</h2>
+        <form id="tripForm">
+            <label for="destination">Destination:</label>
+            <input type="text" id="destination" name="destination" placeholder="Enter city" required>
+
+            <label for="days">Number of Days:</label>
+            <input type="number" id="days" name="days" placeholder="Enter number of days" required min="1">
+
+            <button type="submit">Generate Itinerary</button>
+        </form>
+
+        <div id="itineraryOutput"></div>
+    </section>
+
+    <section id="about">
+        <h2>About</h2>
+        <p>This project generates a day-wise itinerary for travelers. It’s a simple and interactive web app perfect for planning your trips efficiently.</p>
+    </section>
+
+    <footer>
+        &copy; 2025 My Itinerary Website
+    </footer>
+
+    <script>
+    const form = document.getElementById("tripForm");
+    const output = document.getElementById("itineraryOutput");
+
+    form.addEventListener("submit", async function(e) {
+        e.preventDefault(); // prevent page reload
+
+        const destination = document.getElementById("destination").value;
+        const days = parseInt(document.getElementById("days").value);
+
+        output.innerHTML = "<p>Generating itinerary...</p>";
+
+        try {
+            const response = await fetch("/get_itinerary", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ destination, days })
+            });
+
+            const data = await response.json();
+            output.innerHTML = ""; // clear loading text
+
+            data.forEach(dayPlan => {
+                const card = document.createElement("div");
+                card.className = "itinerary-card";
+                card.innerHTML = `
+                    <h3>Day ${dayPlan.day}</h3>
+                    <p>${dayPlan.plan}</p>
+                `;
+                output.appendChild(card);
+            });
+        } catch (error) {
+            output.innerHTML = "<p style='color:red;'>Error fetching itinerary. Please try again.</p>";
+            console.error("Error:", error);
+        }
+    });
+    </script>
+
+</body>
+</html>
